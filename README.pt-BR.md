@@ -8,6 +8,16 @@ Patch comunitário não oficial para substituir consultas de disco feitas com WM
 
 **Relato de uso — 24 de outubro de 2026:** o proprietário do repositório confirmou a criação bem-sucedida de um **SSD bootável no Windows 11 25H2** usando esta correção. O relato confirma a conclusão do processo de criação nesse ambiente. A inicialização efetiva pelo SSD, o modo de firmware e o modelo do SSD ainda não foram informados. Consulte os [detalhes da validação](VALIDATION.md).
 
+## Mensagem original corrigida
+
+A captura enviada mostra a tela vermelha do Easy2Boot com esta mensagem exata:
+
+```text
+ERROR: If using WINDOWS 11 - please add WMIC Windows optional feature component.  Settings - Apps - Optional Features - WMIC
+```
+
+O patch remove essa verificação de disponibilidade do WMIC e migra as consultas de disco afetadas para PowerShell CIM. A captura também exibe `Windows 10 detected`, texto gerado pela detecção do script original. O sistema informado pelo usuário é Windows 11 25H2.
+
 ## Instalação
 
 1. Feche as execuções do Easy2Boot. Extraia o Easy2Boot 2.21 em uma pasta própria.

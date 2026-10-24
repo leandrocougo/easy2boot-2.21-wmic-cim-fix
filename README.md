@@ -8,6 +8,16 @@ An unofficial script patch for the Easy2Boot 2.21 installer identified below. It
 
 **User-reported result — October 24, 2026:** the repository owner successfully created a bootable SSD using this correction on **Windows 11 25H2**. The report confirms completion of the creation process in that environment. Actual startup from the SSD, firmware mode and SSD model have not been reported. See [validation details](VALIDATION.md).
 
+## Original error addressed
+
+The supplied screenshot shows the Easy2Boot red error screen with this exact message:
+
+```text
+ERROR: If using WINDOWS 11 - please add WMIC Windows optional feature component.  Settings - Apps - Optional Features - WMIC
+```
+
+This patch removes that WMIC availability gate and migrates the affected disk queries to PowerShell CIM. The screenshot also says `Windows 10 detected`; that line is the original script's detection output. The user's reported host is Windows 11 25H2.
+
 ## Apply
 
 1. Close running Easy2Boot processes. Extract Easy2Boot 2.21 into its own folder.
