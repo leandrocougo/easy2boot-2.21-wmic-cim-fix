@@ -6,6 +6,8 @@ Patch comunitário não oficial para substituir consultas de disco feitas com WM
 
 **Esta é a revisão R2, confirmada como funcional pelo usuário que relatou o problema.** Ela também remove `-WindowStyle Hidden`, opção que pode ocultar o console compartilhado do CMD e dar a impressão de que a janela fechou. Essa confirmação individual não representa teste de todos os discos ou ambientes.
 
+**Relato de uso — 24 de outubro de 2026:** o proprietário do repositório confirmou a criação bem-sucedida de um **SSD bootável no Windows 11 25H2** usando esta correção. O relato confirma a conclusão do processo de criação nesse ambiente. A inicialização efetiva pelo SSD, o modo de firmware e o modelo do SSD ainda não foram informados. Consulte os [detalhes da validação](VALIDATION.md).
+
 ## Instalação
 
 1. Feche as execuções do Easy2Boot. Extraia o Easy2Boot 2.21 em uma pasta própria.

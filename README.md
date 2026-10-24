@@ -6,6 +6,8 @@ An unofficial script patch for the Easy2Boot 2.21 installer identified below. It
 
 **Use revision R2.** The first revision used `-WindowStyle Hidden`, which can hide the shared CMD console during a PowerShell query. R2 removes that argument. The user who reported the disappearing window confirmed that R2 worked; this is one user report, not a hardware compatibility guarantee.
 
+**User-reported result — October 24, 2026:** the repository owner successfully created a bootable SSD using this correction on **Windows 11 25H2**. The report confirms completion of the creation process in that environment. Actual startup from the SSD, firmware mode and SSD model have not been reported. See [validation details](VALIDATION.md).
+
 ## Apply
 
 1. Close running Easy2Boot processes. Extract Easy2Boot 2.21 into its own folder.

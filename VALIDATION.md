@@ -1,5 +1,19 @@
 # Validation
 
+## User-reported SSD creation on Windows 11 25H2
+
+On October 24, 2026, the repository owner reported successfully creating a bootable SSD with this correction on Windows 11 25H2, following the earlier confirmation that R2 resolved the disappearing-window issue.
+
+| Item | Reported status |
+| --- | --- |
+| Host operating system | Windows 11 25H2 |
+| Target storage | SSD; model and connection type not supplied |
+| Easy2Boot creation process | Completed successfully, according to the user |
+| Actual startup from the SSD | Not yet reported |
+| BIOS/UEFI boot mode | Not supplied |
+
+This is a user report, separate from the read-only query tests and file-only applicator tests below. It does not establish compatibility with every SSD, firmware mode or Windows version.
+
 ## Query migration
 
 - Scanned 109 CMD/BAT/VBS scripts in the supplied installer extraction.
@@ -8,7 +22,7 @@
 - Executed representative `FOR /F` consumers in CMD: `Build`, `PTN2`, `PTN2FS`, `PTN2FREE` and `myphysdrive` were populated.
 - Confirmed the nine changed scripts retain their byte encoding and CRLF endings. Unchanged extracted files were compared by SHA-256.
 - Tested the diagnostic launcher against a simulated child returning exit code 7 and emitting stderr: the parent reported the exit code and captured stderr in the log.
-- The reporting user subsequently confirmed that R2 worked. No independent assertion is made about which disks or every creation step they exercised.
+- The reporting user subsequently confirmed that R2 worked and later reported successful SSD creation on Windows 11 25H2, as recorded above.
 
 ## Distribution applicator
 

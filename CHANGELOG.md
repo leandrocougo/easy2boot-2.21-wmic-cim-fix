@@ -1,5 +1,9 @@
 # Changelog
 
+## Validation report — 2026-10-24
+
+- Record the repository owner's successful creation of a bootable SSD on Windows 11 25H2 using the correction. Actual startup from the SSD has not yet been reported. No script behavior changed in this documentation update.
+
 ## 2.21-cim-r2
 
 - Remove `-WindowStyle Hidden` from all 22 embedded queries. It can hide the shared batch console and make the interactive flow appear to have exited. The reporting user confirmed R2 worked.

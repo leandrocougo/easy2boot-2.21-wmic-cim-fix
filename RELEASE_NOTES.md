@@ -6,4 +6,6 @@ R2 also removes `-WindowStyle Hidden`, which can make the shared CMD console dis
 
 The reporting user confirmed R2 worked. Query parsing, representative read-only CMD/CIM queries and file-only applicator tests passed. USB creation/formatting was not independently tested. Executables are not included or modified; some unrelated WMIC examples remain outside scope.
 
+On October 24, 2026, the repository owner additionally reported successful creation of a bootable SSD on Windows 11 25H2 using this correction. Actual startup from the SSD has not yet been reported. This user report is separate from the automated validation.
+
 See README.md / README.pt-BR.md for installation and the supported source hashes.
