@@ -1,0 +1,5 @@
+* text=auto
+/scripts/** -text
+/patches/** -text
+*.ps1 text eol=crlf
+*.md text eol=lf

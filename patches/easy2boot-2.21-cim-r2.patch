@@ -1,0 +1,263 @@
+--- a/UPDATE_E2B_DRIVE.CMD
++++ b/UPDATE_E2B_DRIVE.CMD
+@@ -35,15 +35,11 @@
+ if "%ERR%"=="0" echo ERROR: Please extract the Easy2Boot files to an EMPTY FOLDER - not the Desktop! & color 4f & pause & goto :EOF
+ set ERR=
+ 
+-:: check for path leading to wmic (wbem folder)
+-path | %WINDIR%\system32\find.exe /i "wbem">nul || set FAIL=1
+-if "%FAIL%"=="1" echo. & path & echo. & color 4f & echo ERROR: Windows PATH is bad - no path to WBEM (e.g. C:\WINDOWS\System32\Wbem) - cannot run wmic command!
+-if "%FAIL%"=="1" pause & start https://exitcode0.net/adding-wmic-command-to-the-windows-path/ & goto :eof
+-set FAIL=
++REM WMIC presence/PATH gate removed: queries use PowerShell CIM.
+ 
+ setlocal enableextensions enabledelayedexpansion
+ 
+-wmic logicaldisk get caption,volumename,description,Size | %WINDIR%\System32\find.exe "Disk" | sort /+1
++powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; [Console]::WriteLine('caption  description  Size  volumename'); foreach($r in (Get-CimInstance -ClassName Win32_LogicalDisk)) { [Console]::WriteLine(([string]$r.caption+'  '+[string]$r.description+'  '+[string]$r.Size+'  '+[string]$r.volumename)) }" | %WINDIR%\System32\find.exe "Disk" | sort /+1
+ echo.
+ 
+ REM get current version and versions available
+--- a/_ISO/SUB_MENU_Maker.cmd
++++ b/_ISO/SUB_MENU_Maker.cmd
+@@ -9,13 +9,9 @@
+ echo.
+ if not "%~1"=="" goto g1
+ 
+-:: check for path leading to wmic (wbem folder)
+-path | %WINDIR%\system32\find.exe /i "wbem">nul || set FAIL=1
+-if "%FAIL%"=="1" echo. & path & echo. & color 4f & echo ERROR: Windows PATH is bad - no path to WBEM (e.g. C:\WINDOWS\System32\Wbem) - cannot run wmic command!
+-if "%FAIL%"=="1" pause & start https://exitcode0.net/adding-wmic-command-to-the-windows-path/ & goto :eof
+-set FAIL=
++REM WMIC presence/PATH gate removed: queries use PowerShell CIM.
+ 
+-wmic logicaldisk get caption,volumename,description,Size | %WINDIR%\System32\find.exe "Disk" | sort /+1
++powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; [Console]::WriteLine('caption  description  Size  volumename'); foreach($r in (Get-CimInstance -ClassName Win32_LogicalDisk)) { [Console]::WriteLine(([string]$r.caption+'  '+[string]$r.description+'  '+[string]$r.Size+'  '+[string]$r.volumename)) }" | %WINDIR%\System32\find.exe "Disk" | sort /+1
+ echo.
+ echo.
+ set ask=
+--- a/_ISO/docs/E2B Utilities/E2B SUBMENU Maker.cmd
++++ b/_ISO/docs/E2B Utilities/E2B SUBMENU Maker.cmd
+@@ -9,13 +9,9 @@
+ echo.
+ if not "%~1"=="" goto g1
+ 
+-:: check for path leading to wmic (wbem folder)
+-path | %WINDIR%\system32\find.exe /i "wbem">nul || set FAIL=1
+-if "%FAIL%"=="1" echo. & path & echo. & color 4f & echo ERROR: Windows PATH is bad - no path to WBEM (e.g. C:\WINDOWS\System32\Wbem) - cannot run wmic command!
+-if "%FAIL%"=="1" pause & start https://exitcode0.net/adding-wmic-command-to-the-windows-path/ & goto :eof
+-set FAIL=
++REM WMIC presence/PATH gate removed: queries use PowerShell CIM.
+ 
+-wmic logicaldisk get caption,volumename,description,Size | %WINDIR%\System32\find.exe "Disk" | sort /+1
++powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; [Console]::WriteLine('caption  description  Size  volumename'); foreach($r in (Get-CimInstance -ClassName Win32_LogicalDisk)) { [Console]::WriteLine(([string]$r.caption+'  '+[string]$r.description+'  '+[string]$r.Size+'  '+[string]$r.volumename)) }" | %WINDIR%\System32\find.exe "Disk" | sort /+1
+ echo.
+ echo.
+ set ask=
+--- a/_ISO/docs/Make_E2B_USB_Drive/Install grub4dos to E2B USB drive.cmd
++++ b/_ISO/docs/Make_E2B_USB_Drive/Install grub4dos to E2B USB drive.cmd
+@@ -21,7 +21,7 @@
+ set USB=%ask:~0,1%:
+ if not exist %USB%\grldr echo ERROR: %USB% drive does not contain \grldr - please extract E2B download files first & goto :exitbad
+ if not exist %USB%\_ISO\e2b\grub\e2b.cfg echo ERROR: %USB% drive does not contain the e2b.cfg file - please extract E2B download files first & goto :exitbad
+-FOR /F "tokens=2 delims=#," %%? IN ('WMIC Path Win32_LogicalDiskToPartition Get Antecedent^, Dependent ^|FIND /i "%USB%"') DO (set /A dd=%%? && GOTO :done)
++FOR /F "tokens=2 delims=#," %%? IN ('powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; foreach($r in (Get-CimInstance -ClassName Win32_LogicalDiskToPartition)) { [Console]::WriteLine(([string]$r.Antecedent.DeviceID+'  '+[string]$r.Dependent.DeviceID)) }" ^|FIND /i "%USB%"') DO (set /A dd=%%? && GOTO :done)
+ ECHO ERROR: Drive letter %USB% is NOT assigned to a partition on a disk.
+ goto :exitbad
+ :done
+--- a/_ISO/docs/Make_E2B_USB_Drive/MAKE_E2B_USB_DRIVE.cmd
++++ b/_ISO/docs/Make_E2B_USB_Drive/MAKE_E2B_USB_DRIVE.cmd
+@@ -113,16 +113,7 @@
+ if not exist ..\..\e2b\grub\menu.lst echo ERROR: Cannot find Easy2Boot files in %~dp0 & goto :exitbad
+ if not exist ..\..\e2b\grub\E2B_GRUB.txt echo ERROR: Cannot find Easy2Boot files in %~dp0 & goto :exitbad
+ 
+-:: check for path leading to wmic (wbem folder)
+-set FAIL=
+-path | %WINDIR%\system32\find.exe /i "wbem">nul || set FAIL=1
+-where wmic.exe >nul 2>nul
+-IF %ERRORLEVEL% NEQ 0 set FAIL=2
+-if "%FAIL%"=="1" echo. & path & echo. & color 4f & echo ERROR: Windows PATH is bad - no path to WBEM (e.g. C:\WINDOWS\System32\Wbem) - cannot run WMIC command!
+-if "%FAIL%"=="2" echo. & echo. & color 4f & echo ERROR: If using WINDOWS 11 - please add WMIC Windows optional feature component.  Settings - Apps - Optional Features - WMIC
+-if "%FAIL%"=="1" pause & start https://exitcode0.net/adding-wmic-command-to-the-windows-path/ & goto :exitbad
+-if "%FAIL%"=="2" goto :exitbad
+-set FAIL=
++REM WMIC presence/PATH gate removed: queries use PowerShell CIM.
+ 
+ REM change to our working folder
+ set WF=%~dp0
+@@ -245,7 +236,7 @@
+ 
+ ver | %WINDIR%\System32\find.exe /i " XP " > nul && goto :skp4k
+ :: check if 4K sector drive
+-wmic DISKDRIVE get caption, description, Deviceid, bytespersector | %WINDIR%\System32\find.exe /i "DRIVE%DD%" > "%temp%\DD.tmp"
++powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; [Console]::WriteLine('bytespersector  caption  description  Deviceid'); foreach($r in (Get-CimInstance -ClassName Win32_DiskDrive)) { [Console]::WriteLine(([string]$r.bytespersector+'  '+[string]$r.caption+'  '+[string]$r.description+'  '+[string]$r.Deviceid)) }" | %WINDIR%\System32\find.exe /i "DRIVE%DD%" > "%temp%\DD.tmp"
+ %WINDIR%\System32\find.exe "4096" "%temp%\DD.tmp" > nul
+ if not errorlevel 1 echo. & echo. & type "%temp%\DD.tmp" & echo. & echo SORRY: THIS DRIVE HAS 4K SECTORS AND IS NOT MBR BOOTABLE! & echo. & del "%temp%\DD.tmp" & goto :exitbad
+ if exist "%temp%\DD.tmp" del "%temp%\DD.tmp"
+@@ -260,7 +251,7 @@
+ 
+ if exist r.tmp del r.tmp
+ ver | %WINDIR%\System32\find.exe " XP " > nul && goto :skprem
+-wmic /LOCALE:ms_409 diskdrive get MediaType,deviceid | %WINDIR%\System32\find.exe "DRIVE%DD%" > r.tmp 2>nul
++powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; [Console]::WriteLine('deviceid  MediaType'); foreach($r in (Get-CimInstance -ClassName Win32_DiskDrive)) { [Console]::WriteLine(([string]$r.deviceid+'  '+[string]$r.MediaType)) }" | %WINDIR%\System32\find.exe "DRIVE%DD%" > r.tmp 2>nul
+ set DTYPE=UNKNOWN DISK TYPE (may be Fixed or Removable)!
+ set dt=
+ %WINDIR%\System32\find.exe /i "Removable" r.tmp > nul && set DTYPE=REMOVABLE DISK
+@@ -307,7 +298,7 @@
+ if not "%OSVERSION%"=="10.0" goto :noaske
+ :: if old WIN10 then we cannot have multiple partitions
+ set Build=
+-for /f "tokens=2 delims== " %%A in ('wmic os get BuildNumber /value ^| %WINDIR%\system32\find.exe "="') do set /A Build=%%A
++for /f "tokens=2 delims== " %%A in ('powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; foreach($r in (Get-CimInstance -ClassName Win32_OperatingSystem)) { [Console]::WriteLine(('BuildNumber='+[string]$r.BuildNumber)) }" ^| %WINDIR%\system32\find.exe "="') do set /A Build=%%A
+ if "%Build%"=="" goto :noaske
+ if "%Build%"=="0" goto :noaske
+ if %Build% LSS 15063 echo WARNING: WINDOWS 10 IS TOO OLD - IT DOES NOT SUPPORT MULTIPLE PARTITIONS ON USB FLASH DRIVES (Win 10 - Build %Build%) & pause & goto :noaske
+@@ -780,18 +771,18 @@
+ :: get partition 2 of this disk using diskpart
+ (echo sel disk %DD% & echo sel part 2 & echo list vol & echo exit) | diskpart | %WINDIR%\system32\find.exe /i "*" > "%temp%\diskpart.scr"
+ for /f "tokens=4" %%d in (%temp%\diskpart.scr) do set DLP2=%%d:
+-for /f "tokens=2 delims==" %%d in ('wmic logicaldisk where "name='%DLP2%'" get name /format:value') do set PTN2=%%d
++for /f "tokens=2 delims==" %%d in ('powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; foreach($r in (Get-CimInstance -ClassName Win32_LogicalDisk -Filter ('Name='+[char]39+'%DLP2%'+[char]39))) { [Console]::WriteLine(('name='+[string]$r.name)) }"') do set PTN2=%%d
+ if /i not "%DLP2%"=="%PTN2%" echo ERROR: Cannot determine drive letter of Partition 2, Drive %DD% [%PTN2% or %DLP2%?] & echo Please use Windows 10 or a USB Fixed disk - Windows %OSVERSION% detected & pause & goto :JJ1
+ echo Partition 2 is %PTN2%
+ if not "%PTN2:~1,2%"==":" goto :JJ1
+ set DLP2=
+ 
+-for /f "tokens=2 delims==" %%d in ('wmic logicaldisk where "name='%PTN2%'" get filesystem /format:value') do set PTN2FS=%%d
++for /f "tokens=2 delims==" %%d in ('powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; foreach($r in (Get-CimInstance -ClassName Win32_LogicalDisk -Filter ('Name='+[char]39+'%PTN2%'+[char]39))) { [Console]::WriteLine(('filesystem='+[string]$r.filesystem)) }"') do set PTN2FS=%%d
+ :: check if running Win7/8/XP and cannot access 2nd ptn on flash drive...
+ if "%PTN2FS%"=="" goto :JJ1
+ echo Partition 2 (%PTN2%) is %PTN2FS%
+ if /i not "%PTN2FS:~0,3%"=="FAT" goto :JJ1
+-for /f "tokens=2 delims==" %%d in ('wmic logicaldisk where "name='%PTN2%'" get freespace /format:value') do set PTN2FREE=%%d
++for /f "tokens=2 delims==" %%d in ('powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; foreach($r in (Get-CimInstance -ClassName Win32_LogicalDisk -Filter ('Name='+[char]39+'%PTN2%'+[char]39))) { [Console]::WriteLine(('freespace='+[string]$r.freespace)) }"') do set PTN2FREE=%%d
+ :: next line is fix for extra invisible character appended to string by wmic!!! DO NOT DELETE!!!
+ set PTN2FREE=%PTN2FREE%
+ set PTN2FREE=%PTN2FREE:~0,-6%
+@@ -992,9 +983,9 @@
+ REM CheckAv by SSi 2021-07-09
+ echo.
+ SETLOCAL EnableDelayedExpansion
+-wmic /namespace:\\root\SecurityCenter2 path AntiVirusProduct get * /value 2> nul|findstr "displayName productState pathToSignedReportingExe" > t.txt 2> nul
+-wmic /namespace:\\root\SecurityCenter2 path FirewallProduct get * /value 2> nul|findstr "displayName productState pathToSignedReportingExe" >> t.txt 2> nul
+-wmic /namespace:\\root\SecurityCenter2 path AntiSpywareProduct get * /value 2> nul|findstr "displayName productState pathToSignedReportingExe" >> t.txt 2> nul
++powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; foreach($r in (Get-CimInstance -Namespace root/SecurityCenter2 -ClassName AntiVirusProduct)) { foreach($p in @('displayName','productState','pathToSignedReportingExe')) { [Console]::WriteLine(($p+'='+[string]$r.$p)) } }" 2> nul|findstr "displayName productState pathToSignedReportingExe" > t.txt 2> nul
++powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; foreach($r in (Get-CimInstance -Namespace root/SecurityCenter2 -ClassName FirewallProduct)) { foreach($p in @('displayName','productState','pathToSignedReportingExe')) { [Console]::WriteLine(($p+'='+[string]$r.$p)) } }" 2> nul|findstr "displayName productState pathToSignedReportingExe" >> t.txt 2> nul
++powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; foreach($r in (Get-CimInstance -Namespace root/SecurityCenter2 -ClassName AntiSpywareProduct)) { foreach($p in @('displayName','productState','pathToSignedReportingExe')) { [Console]::WriteLine(($p+'='+[string]$r.$p)) } }" 2> nul|findstr "displayName productState pathToSignedReportingExe" >> t.txt 2> nul
+ 
+ if exist t1.txt del t1.txt
+ for /f "tokens=2 delims=^=" %%G in (t.txt) do echo %%G>> t1.txt
+@@ -1076,7 +1067,7 @@
+ set FREE2=
+ set FREE3=
+ set "drives=DEFGHIJKLMNOPQRSTUVWXYZ"
+-for /f "delims=:" %%A in ('wmic logicaldisk get caption') do set "drives=!drives:%%A=!"
++for /f "delims=:" %%A in ('powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; [Console]::WriteLine('caption'); foreach($r in (Get-CimInstance -ClassName Win32_LogicalDisk)) { [Console]::WriteLine(([string]$r.caption)) }"') do set "drives=!drives:%%A=!"
+ ::echo all unused letters = "%drives%"
+ ::echo first unused letter = "%drives:~0,1%"
+ ::echo 2nd unused letter =   "%drives:~1,1%"
+--- a/_ISO/docs/Make_E2B_USB_Drive/Make_MyE2B.cfg.cmd
++++ b/_ISO/docs/Make_E2B_USB_Drive/Make_MyE2B.cfg.cmd
+@@ -15,7 +15,7 @@
+ echo ===================================
+ echo.
+ 
+-wmic logicaldisk get caption,volumename,description,Size | %WINDIR%\System32\find.exe "Disk" | sort /+1
++powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; [Console]::WriteLine('caption  description  Size  volumename'); foreach($r in (Get-CimInstance -ClassName Win32_LogicalDisk)) { [Console]::WriteLine(([string]$r.caption+'  '+[string]$r.description+'  '+[string]$r.Size+'  '+[string]$r.volumename)) }" | %WINDIR%\System32\find.exe "Disk" | sort /+1
+ echo.
+ echo.
+ 
+@@ -57,7 +57,7 @@
+ :getlang
+ if "%DD%"=="" goto :skipr
+ if exist r.tmp del r.tmp
+-wmic /LOCALE:ms_409 diskdrive get MediaType,deviceid | %WINDIR%\System32\find.exe "DRIVE%DD%" > r.tmp 2>nul
++powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; [Console]::WriteLine('deviceid  MediaType'); foreach($r in (Get-CimInstance -ClassName Win32_DiskDrive)) { [Console]::WriteLine(([string]$r.deviceid+'  '+[string]$r.MediaType)) }" | %WINDIR%\System32\find.exe "DRIVE%DD%" > r.tmp 2>nul
+ %WINDIR%\System32\find.exe /i "Removable" r.tmp > nul && set DTYPE=REMOVABLE DISK
+ if not "%DTYPE%"=="" echo INFORMATION: Drive %DRIVE% is of the "%DTYPE%" type
+ if exist r.tmp del r.tmp
+--- a/_ISO/docs/E2B Utilities/Launcher/Run.cmd
++++ b/_ISO/docs/E2B Utilities/Launcher/Run.cmd
+@@ -76,7 +76,7 @@
+ 
+ :get_agFM
+ REM get physical drive number of drive that has this file
+-FOR /F "tokens=2 delims=#," %%? IN ('WMIC Path Win32_LogicalDiskToPartition Get Antecedent^, Dependent  ^| %WINDIR%\system32\FIND.exe "%~d0"') DO (set myphysdrive=%%?)
++FOR /F "tokens=2 delims=#," %%? IN ('powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; foreach($r in (Get-CimInstance -ClassName Win32_LogicalDiskToPartition)) { [Console]::WriteLine(([string]$r.Antecedent.DeviceID+'  '+[string]$r.Dependent.DeviceID)) }"  ^| %WINDIR%\system32\FIND.exe "%~d0"') DO (set myphysdrive=%%?)
+ REM echo Physical Drive=%myphysdrive%
+ 
+ FOR %%D IN (D E F G H I J K L M N O P Q R S T U V W X Y Z) DO (
+@@ -95,7 +95,7 @@
+ set physdrive=
+ REM echo Checking %~1
+ if "%~1"=="" goto :EOF
+-FOR /F "tokens=2 delims=#," %%? IN ('WMIC Path Win32_LogicalDiskToPartition Get Antecedent^, Dependent  ^| %WINDIR%\system32\FIND.exe "%~1"') DO (set physdrive=%%?)
++FOR /F "tokens=2 delims=#," %%? IN ('powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; foreach($r in (Get-CimInstance -ClassName Win32_LogicalDiskToPartition)) { [Console]::WriteLine(([string]$r.Antecedent.DeviceID+'  '+[string]$r.Dependent.DeviceID)) }"  ^| %WINDIR%\system32\FIND.exe "%~1"') DO (set physdrive=%%?)
+ goto :EOF
+ 
+ REM =================
+--- a/_ISO/docs/E2B Utilities/Launcher/StartupCheck.cmd
++++ b/_ISO/docs/E2B Utilities/Launcher/StartupCheck.cmd
+@@ -4,11 +4,7 @@
+ title %~f0
+ echo Checking - please wait...
+ 
+-:: check for path leading to wmic (wbem folder)
+-path | %WINDIR%\system32\find.exe /i "wbem">nul || set FAIL=1
+-if "%FAIL%"=="1" echo. & path & echo. & color 4f & echo ERROR: Windows PATH is bad - no path to WBEM (e.g. C:\WINDOWS\System32\Wbem) - cannot run wmic command!
+-if "%FAIL%"=="1" pause & start https://exitcode0.net/adding-wmic-command-to-the-windows-path/ & goto :eof
+-set FAIL=
++REM WMIC presence/PATH gate removed: queries use PowerShell CIM.
+ 
+ if not exist "%~d0\_ISO\e2b\grub\menu.lst" echo ERROR: This utility must be run from an E2B USB drive. && goto :BADEND
+ if not exist "%~d0\_ISO\docs\E2B Utilities\Launcher\%~nx0" echo ERROR: No %~d0\_ISO\docs\E2B Utilities\Launcher\%~nx0 found.
+@@ -51,7 +47,7 @@
+ 
+ :get_agFM
+ REM get physical drive number of drive that has this file
+-FOR /F "tokens=2 delims=#," %%? IN ('WMIC Path Win32_LogicalDiskToPartition Get Antecedent^, Dependent  ^| %WINDIR%\system32\FIND.exe "%~d0"') DO (set myphysdrive=%%?)
++FOR /F "tokens=2 delims=#," %%? IN ('powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; foreach($r in (Get-CimInstance -ClassName Win32_LogicalDiskToPartition)) { [Console]::WriteLine(([string]$r.Antecedent.DeviceID+'  '+[string]$r.Dependent.DeviceID)) }"  ^| %WINDIR%\system32\FIND.exe "%~d0"') DO (set myphysdrive=%%?)
+ REM echo Physical Drive=%myphysdrive%
+ 
+ FOR %%D IN (D E F G H I J K L M N O P Q R S T U V W X Y Z) DO (
+@@ -69,7 +65,7 @@
+ set physdrive=
+ REM echo Checking %~1
+ if "%~1"=="" goto :EOF
+-FOR /F "tokens=2 delims=#," %%? IN ('WMIC Path Win32_LogicalDiskToPartition Get Antecedent^, Dependent  ^| %WINDIR%\system32\FIND.exe "%~1"') DO (set physdrive=%%?)
++FOR /F "tokens=2 delims=#," %%? IN ('powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; foreach($r in (Get-CimInstance -ClassName Win32_LogicalDiskToPartition)) { [Console]::WriteLine(([string]$r.Antecedent.DeviceID+'  '+[string]$r.Dependent.DeviceID)) }"  ^| %WINDIR%\system32\FIND.exe "%~1"') DO (set physdrive=%%?)
+ goto :EOF
+ 
+ REM =================
+--- a/_ISO/WINDOWS/installs/CONFIGS/SDI_CHOCO/Sample_MyStartup.cmd
++++ b/_ISO/WINDOWS/installs/CONFIGS/SDI_CHOCO/Sample_MyStartup.cmd
+@@ -14,8 +14,8 @@
+ set loganddisplay= ^> %~n0_temp.txt 2^>^&1 ^& type %~n0_temp.txt ^>^> %log% ^& type %~n0_temp.txt ^& del /Q /F %~n0_temp.txt
+ 
+ REM Display Build Number and version - e.g. 10.1.19044   Microsoft Windows 10 Pro
+-for /f "tokens=2 delims==" %%G in ('wmic os get Caption /value') do set _edition=%%G
+-for /f "tokens=2 delims==" %%G in ('wmic os get Version /value') do set _version=%%G
++for /f "tokens=2 delims==" %%G in ('powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; foreach($r in (Get-CimInstance -ClassName Win32_OperatingSystem)) { [Console]::WriteLine(('Caption='+[string]$r.Caption)) }"') do set _edition=%%G
++for /f "tokens=2 delims==" %%G in ('powershell.exe -NoLogo -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; foreach($r in (Get-CimInstance -ClassName Win32_OperatingSystem)) { [Console]::WriteLine(('Version='+[string]$r.Version)) }"') do set _version=%%G
+ echo Edition=[%_edition%]
+ echo Version=[%_version%]
+ for /f "tokens=4,5,6 delims=[]. " %%G in ('ver') Do (set _major=%%G& set _minor=%%H& set _build=%%I) 
+--- /dev/null
++++ b/INICIAR_COM_DIAGNOSTICO.cmd
+@@ -0,0 +1,16 @@
++@echo off
++setlocal
++set "E2B_ROOT=%~dp0"
++cd /d "%E2B_ROOT%"
++echo Easy2Boot CIM - diagnostic launcher
++echo Run this file as administrator.
++echo Errors are appended to Easy2Boot-erro.log in this folder.
++echo [%date% %time%] Starting >>"%E2B_ROOT%Easy2Boot-erro.log"
++cmd.exe /d /c ""%E2B_ROOT%_ISO\docs\Make_E2B_USB_Drive\MAKE_E2B_USB_DRIVE.cmd"" 2>>"%E2B_ROOT%Easy2Boot-erro.log"
++set "E2B_RC=%errorlevel%"
++echo.
++echo Easy2Boot finished. Exit code: %E2B_RC%
++echo [%date% %time%] Exit code: %E2B_RC% >>"%E2B_ROOT%Easy2Boot-erro.log"
++echo If it stopped unexpectedly, see Easy2Boot-erro.log.
++pause
++exit /b %E2B_RC%
